@@ -1,0 +1,67 @@
+package com.yukina.suaicode.service;
+
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.core.service.IService;
+import com.yukina.suaicode.model.dto.user.UserQueryRequest;
+import com.yukina.suaicode.model.entity.User;
+import com.yukina.suaicode.model.vo.LoginUserVO;
+import com.yukina.suaicode.model.vo.UserVO;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
+
+/**
+ * 用户 服务层。
+ *
+ * @author <a href="https://github.com/Yukimiyi">yukina</a>
+ */
+public interface UserService extends IService<User> {
+    /**
+     * 用户注册
+     *
+     * @param userAccount
+     * @param userPassword
+     * @param checkPassword
+     * @return
+     */
+    long userRegister(String userAccount, String userPassword, String checkPassword);
+
+    /**
+     * 用户登录
+     * @param userAccount
+     * @param userPassword
+     * @return
+     */
+    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 获取脱敏的已登录用户信息
+     *
+     * @param user
+     * @return
+     */
+    LoginUserVO getLoginUserVO(User user);
+
+    /**
+     * 获取当前登录用户
+     * @param request
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 用户注销
+     * @param request
+     * @return
+     */
+    boolean userLogout(HttpServletRequest request);
+
+
+    String getEncryptPassword(String userPassword);
+
+    UserVO getUserVO(User user);
+
+    List<UserVO> getUserVOList(List<User> userList);
+
+    QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
+}
