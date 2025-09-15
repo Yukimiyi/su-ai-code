@@ -1,7 +1,9 @@
 spring:
   application:
       name: su-ai-code
-    # mysql
+  profiles:
+    active: local
+  # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/su-ai-code
@@ -21,3 +23,21 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+# AI
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.deepseek.com
+      api-key: <Your API Key>
+      model-name: deepseek-chat
+      log-requests: true
+      log-responses: true
+      maxtokens: 8192
+    streaming-chat-model:
+      base-url: https://api.deepseek.com
+      api-key: <Your API Key>
+      model-name: deepseek-chat
+      max-tokens: 8192
+      log-requests: true
+      log-responses: true

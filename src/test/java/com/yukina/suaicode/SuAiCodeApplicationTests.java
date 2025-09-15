@@ -8,6 +8,7 @@ class SuAiCodeApplicationTests {
 
     @Test
     void contextLoads() {
+
     }
 
 }
