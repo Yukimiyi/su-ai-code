@@ -23,7 +23,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveMultiFileCode() {
-        File file = aiCodeGeneratorFacade.generateAndSaveCode(CodeGenTypeEnum.MULTI_FILE, "任务记录网站，不超过100行代码");
+        File file = aiCodeGeneratorFacade.generateAndSaveCode(CodeGenTypeEnum.MULTI_FILE, "任务记录网站，不超过50行代码");
         Assertions.assertNotNull(file);
     }
 

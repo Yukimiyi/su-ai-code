@@ -9,6 +9,7 @@ import com.yukina.suaicode.model.enums.CodeGenTypeEnum;
 
 import java.io.File;
 
+@Deprecated
 public class CoreFileSaver {
     public static final String FILE_SAVE_ROOT_PATH = System.getProperty("user.dir") + "/tmp/code_output";
 
