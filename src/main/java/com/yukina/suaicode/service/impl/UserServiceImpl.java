@@ -28,7 +28,7 @@ import static com.yukina.suaicode.constant.UserConstant.USER_LOGIN_STATE;
 /**
  * 用户 服务层实现。
  *
- * @author <<a href=\"https://github.com/Yukimiyi\">yukina</a>
+ * @author <a href=\"https://github.com/Yukimiyi\">yukina</a>
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {

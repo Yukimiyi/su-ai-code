@@ -17,19 +17,19 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveHtmlCode() {
-        File file = aiCodeGeneratorFacade.generateAndSaveCode(CodeGenTypeEnum.HTML, "任务记录网站，不超过50行代码");
+        File file = aiCodeGeneratorFacade.generateAndSaveCode(CodeGenTypeEnum.HTML, "任务记录网站，不超过50行代码", 1L);
         Assertions.assertNotNull(file);
     }
 
     @Test
     void generateAndSaveMultiFileCode() {
-        File file = aiCodeGeneratorFacade.generateAndSaveCode(CodeGenTypeEnum.MULTI_FILE, "任务记录网站，不超过50行代码");
+        File file = aiCodeGeneratorFacade.generateAndSaveCode(CodeGenTypeEnum.MULTI_FILE, "任务记录网站，不超过50行代码", 1L);
         Assertions.assertNotNull(file);
     }
 
     @Test
     void generateAndSaveHtmlCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(CodeGenTypeEnum.HTML, "任务记录网站，不超过50行代码");
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(CodeGenTypeEnum.HTML, "任务记录网站，不超过50行代码", 1L);
         List<String> result = codeStream.collectList().block();
         Assertions.assertNotNull(result);
         String completeContent = String.join("", result);
@@ -38,7 +38,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveMultiFileCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(CodeGenTypeEnum.MULTI_FILE, "任务记录网站，不超过100行代码");
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(CodeGenTypeEnum.MULTI_FILE, "任务记录网站，不超过100行代码", 1L);
         List<String> result = codeStream.collectList().block();
         Assertions.assertNotNull(result);
         String completeContent = String.join("", result);

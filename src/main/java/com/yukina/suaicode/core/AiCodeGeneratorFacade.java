@@ -31,18 +31,18 @@ public class AiCodeGeneratorFacade {
      * @param codeGenTypeEnum
      * @param userMessage
      */
-    public File generateAndSaveCode(CodeGenTypeEnum codeGenTypeEnum, String userMessage) {
+    public File generateAndSaveCode(CodeGenTypeEnum codeGenTypeEnum, String userMessage, Long appId) {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
-                yield CodeFileSaverExecutor.executeSaver(CodeGenTypeEnum.HTML, htmlCodeResult);
+                yield CodeFileSaverExecutor.executeSaver(CodeGenTypeEnum.HTML, htmlCodeResult, appId);
             }
             case MULTI_FILE -> {
                 MultiFileCodeResult multiFileCodeResult = aiCodeGeneratorService.generateMultiFileCode(userMessage);
-                yield CodeFileSaverExecutor.executeSaver(CodeGenTypeEnum.MULTI_FILE, multiFileCodeResult);
+                yield CodeFileSaverExecutor.executeSaver(CodeGenTypeEnum.MULTI_FILE, multiFileCodeResult, appId);
             }
             default ->
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的生成类型" + codeGenTypeEnum.getValue());
@@ -55,18 +55,18 @@ public class AiCodeGeneratorFacade {
      * @param codeGenTypeEnum
      * @param userMessage
      */
-    public Flux<String> generateAndSaveCodeStream(CodeGenTypeEnum codeGenTypeEnum, String userMessage) {
+    public Flux<String> generateAndSaveCodeStream(CodeGenTypeEnum codeGenTypeEnum, String userMessage, Long appId) {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 Flux<String> stringFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
-                yield processCodeStream(stringFlux, CodeGenTypeEnum.HTML);
+                yield processCodeStream(stringFlux, CodeGenTypeEnum.HTML, appId);
             }
             case MULTI_FILE -> {
                 Flux<String> stringFlux = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
-                yield  processCodeStream(stringFlux, CodeGenTypeEnum.MULTI_FILE);
+                yield processCodeStream(stringFlux, CodeGenTypeEnum.MULTI_FILE, appId);
             }
             default ->
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的生成类型" + codeGenTypeEnum.getValue());
@@ -105,9 +105,9 @@ public class AiCodeGeneratorFacade {
      * @param userMessage
      * @return
      */
-    private Flux<String> generateAndSaveHtmlCodeStream(String userMessage) {
+    private Flux<String> generateAndSaveHtmlCodeStream(String userMessage, Long appId) {
         Flux<String> stringFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
-        return processCodeStream(stringFlux, CodeGenTypeEnum.HTML);
+        return processCodeStream(stringFlux, CodeGenTypeEnum.HTML, appId);
     }
 
     /**
@@ -116,18 +116,18 @@ public class AiCodeGeneratorFacade {
      * @param userMessage
      * @return
      */
-    private Flux<String> generateAndSaveMultiFileCodeStream(String userMessage) {
+    private Flux<String> generateAndSaveMultiFileCodeStream(String userMessage, Long appId) {
         Flux<String> stringFlux = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
-        return processCodeStream(stringFlux, CodeGenTypeEnum.MULTI_FILE);
+        return processCodeStream(stringFlux, CodeGenTypeEnum.MULTI_FILE, appId);
     }
 
-    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenType) {
+    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenType, Long appId) {
         StringBuilder codeBuilder = new StringBuilder();
         return codeStream.doOnNext(codeBuilder::append)
                 .doOnComplete(() -> {
                     try {
                         Object CodeResult = CodeParserExecutor.executeParser(codeBuilder.toString(), codeGenType);
-                        File file = CodeFileSaverExecutor.executeSaver(codeGenType, CodeResult);
+                        File file = CodeFileSaverExecutor.executeSaver(codeGenType, CodeResult, appId);
                         log.info("保存成功，路径为：{}", file.getAbsolutePath());
                     } catch (Exception e) {
                         log.error("保存失败：{}", e.getMessage());

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 /**
  * 用户 实体类。
  *
- * @author <<a href=\"https://github.com/Yukimiyi\">yukina</a>
+ * @author <a href=\"https://github.com/Yukimiyi\">yukina</a>
  */
 @Data
 @Builder
