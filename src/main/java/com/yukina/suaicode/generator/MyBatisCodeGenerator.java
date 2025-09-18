@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MyBatisCodeGenerator {
 
-    private static final String[] TABLE_NAMES = {"app"};
+    private static final String[] TABLE_NAMES = {"chat_history"};
 
     public static void main(String[] args) {
         Dict dict = YamlUtil.loadByPath("application.yml");

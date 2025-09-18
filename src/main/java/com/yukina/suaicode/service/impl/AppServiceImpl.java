@@ -8,6 +8,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.yukina.suaicode.constant.AppConstant;
 import com.yukina.suaicode.core.AiCodeGeneratorFacade;
 import com.yukina.suaicode.exception.BusinessException;
 import com.yukina.suaicode.exception.ErrorCode;
@@ -16,16 +17,20 @@ import com.yukina.suaicode.mapper.AppMapper;
 import com.yukina.suaicode.model.dto.app.AppQueryRequest;
 import com.yukina.suaicode.model.entity.App;
 import com.yukina.suaicode.model.entity.User;
+import com.yukina.suaicode.model.enums.ChatHistoryMessageTypeEnum;
 import com.yukina.suaicode.model.enums.CodeGenTypeEnum;
 import com.yukina.suaicode.model.vo.AppVO;
 import com.yukina.suaicode.model.vo.UserVO;
 import com.yukina.suaicode.service.AppService;
+import com.yukina.suaicode.service.ChatHistoryService;
 import com.yukina.suaicode.service.UserService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +46,7 @@ import static com.yukina.suaicode.constant.AppConstant.*;
  * @author <a href="https://github.com/Yukimiyi">yukina</a>
  */
 @Service
+@Slf4j
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
 
     @Resource
@@ -48,6 +54,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private AiCodeGeneratorFacade aiCodeGeneratorFacade;
+
+    @Resource
+    private ChatHistoryService chatHistoryService;
 
     @Override
     public AppVO getAppVO(App app) {
@@ -124,8 +133,29 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String codeGenType = app.getCodeGenType();
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
         ThrowUtils.throwIf(codeGenTypeEnum == null, ErrorCode.PARAMS_ERROR, "不支持的代码生成类型");
-        // 5. 调用代码生成器
-        return aiCodeGeneratorFacade.generateAndSaveCodeStream(codeGenTypeEnum, message, appid);
+        // 5. 通过校验后，保存对话历史
+        chatHistoryService.addChatHistory(message, ChatHistoryMessageTypeEnum.USER.getValue(), appid, loginUser.getId());
+        // 6. 调用 AI 生成代码(流式)
+        Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(codeGenTypeEnum, message, appid);
+        // 7. 收集 AI 响应结果并保存到对话历史
+        StringBuilder codeBuilder = new StringBuilder();
+        return contentFlux.map(chunk -> {
+                    // 收集 AI 响应内容
+                    codeBuilder.append(chunk);
+                    return chunk;
+                })
+                .doOnComplete(() -> {
+                    // 流失响应完成，将AI消息保留到对话
+                    String aiResponse = codeBuilder.toString();
+                    if (StrUtil.isNotBlank(aiResponse)) {
+                        chatHistoryService.addChatHistory(aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), appid, loginUser.getId());
+                    }
+                })
+                .doOnError(error -> {
+                    // 失败时，也将消息保留到历史对话
+                    String errorMessage = "AI回复失败" + error.getMessage();
+                    chatHistoryService.addChatHistory(errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), appid, loginUser.getId());
+                });
     }
 
     @Override
@@ -143,16 +173,16 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String deployKey = app.getDeployKey();
         // 不存在则生成
         if (StrUtil.isBlank(deployKey)) {
-            deployKey = "deployKey_" + RandomUtil.randomNumbers(6);
+            deployKey = RandomUtil.randomNumbers(6);
         }
         // 5.获取代码生成类型，构造源目录
         String codeGenType = app.getCodeGenType();
         String sourceDirName = codeGenType + "_" + appid;
-        String sourceDirPath =  CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
+        String sourceDirPath = CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
         File sourceDir = new File(sourceDirPath);
         // 6.检查源目录是否存在
         ThrowUtils.throwIf(!sourceDir.exists() || !sourceDir.isDirectory(), ErrorCode.SYSTEM_ERROR, "源目录不存在");
-        String deployDirPath =  CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
+        String deployDirPath = CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
         // 7.复制文件到部署目录
         try {
             FileUtil.copyContent(sourceDir, new File(deployDirPath), true);
@@ -169,4 +199,39 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         // 9. 返回可访问的 URL
         return String.format("%s/%s/", CODE_DEPLOY_HOST, deployKey);
     }
+
+    @Override
+    public boolean removeById(Serializable id) {
+        if (id == null) {
+            return false;
+        }
+        Long appId = Long.valueOf(id.toString());
+        if (appId <= 0) {
+            return false;
+        }
+        try {
+            chatHistoryService.deleteByAppId(appId);
+        } catch (Exception e) {
+            // 记录日志但不阻止应用删除
+            log.error("删除应用历史记录失败: {}", e.getMessage());
+        }
+        try {
+            App app = this.getById(appId);
+            deleteOutPutAndDeployFiles(app);
+        } catch (Exception e) {
+            log.error("清理应用文件失败: {}", e.getMessage());
+        }
+        return super.removeById(appId);
+    }
+
+    private static void deleteOutPutAndDeployFiles(App app) {
+        String outPutDir = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + app.getCodeGenType() + "_" + app.getId();
+        FileUtil.del(outPutDir);
+        String deployKey = app.getDeployKey();
+        if(StrUtil.isNotBlank(deployKey)) {
+            String deployDir = AppConstant.CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
+            FileUtil.del(deployDir);
+        }
+    }
+
 }
