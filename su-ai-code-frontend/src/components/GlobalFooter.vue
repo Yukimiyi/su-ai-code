@@ -3,12 +3,12 @@
     <div class="footer-content">
       <p class="copyright">
         <a
-          href="https://www.codefather.cn"
+          href="https://github.com/Yukimiyi"
           target="_blank"
           rel="noopener noreferrer"
           class="author-link"
         >
-          编程导航原创项目 by 程序员鱼皮
+          个人全栈项目 by yukina
         </a>
       </p>
     </div>
@@ -21,17 +21,33 @@
 
 <style scoped>
 .footer {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(75, 70, 150, 0.4) 0%, rgba(120, 80, 120, 0.3) 100%);
+  backdrop-filter: blur(30px);
   text-align: center;
   padding: 20px;
-  margin-top: 40px;
-  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  border-top: 1px solid rgba(75, 70, 150, 0.6);
+  box-shadow: 0 -4px 20px rgba(75, 70, 150, 0.3);
 }
 
 .copyright {
   margin: 0;
-  color: #666;
+  color: #ffffff;
   font-size: 14px;
+  text-shadow:
+    0 2px 15px rgba(255, 255, 255, 0.3),
+    0 1px 8px rgba(151, 149, 240, 0.6);
+}
+
+.author-link {
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.author-link:hover {
+  color: rgba(255, 255, 255, 1);
+  text-shadow:
+    0 3px 20px rgba(255, 255, 255, 0.5),
+    0 1px 8px rgba(151, 149, 240, 0.8);
 }
 </style>

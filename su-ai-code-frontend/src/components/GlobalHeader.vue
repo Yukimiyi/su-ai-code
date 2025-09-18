@@ -60,7 +60,7 @@ const router = useRouter()
 // 当前选中菜单
 const selectedKeys = ref<string[]>(['/'])
 // 监听路由变化，更新当前选中菜单
-router.afterEach((to, from, next) => {
+router.afterEach((to) => {
   selectedKeys.value = [to.path]
 })
 
@@ -84,8 +84,8 @@ const originItems = [
   },
   {
     key: 'others',
-    label: h('a', { href: 'https://www.codefather.cn', target: '_blank' }, '编程导航'),
-    title: '编程导航',
+    label: h('a', { href: 'https://github.com/Yukimiyi/su-ai-code', target: '_blank' }, '项目仓库'),
+    title: '项目仓库',
   },
 ]
 
@@ -133,7 +133,9 @@ const doLogout = async () => {
 
 <style scoped>
 .header {
-  background: #fff;
+  background: linear-gradient(180deg, rgba(75, 70, 150, 0.4) 0%, rgba(120, 80, 120, 0.3) 100%);
+  backdrop-filter: blur(25px);
+  border-bottom: 1px solid rgba(75, 70, 150, 0.6);
   padding: 0 24px;
 }
 
@@ -151,10 +153,47 @@ const doLogout = async () => {
 .site-title {
   margin: 0;
   font-size: 18px;
-  color: #1890ff;
+  color: #ffffff;
+  text-shadow:
+    0 2px 20px rgba(255, 255, 255, 0.3),
+    0 1px 8px rgba(151, 149, 240, 0.6);
 }
 
 .ant-menu-horizontal {
   border-bottom: none !important;
+  background: transparent !important;
+}
+
+.ant-menu-horizontal :deep(.ant-menu-item) {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.ant-menu-horizontal :deep(.ant-menu-item:hover) {
+  color: #ffffff !important;
+  background: rgba(75, 70, 150, 0.3) !important;
+  border-bottom-color: rgba(151, 149, 240, 0.8) !important;
+}
+
+.ant-menu-horizontal :deep(.ant-menu-item-selected) {
+  color: #ffffff !important;
+  background: rgba(75, 70, 150, 0.5) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.user-login-status {
+  color: #ffffff;
+}
+
+.user-login-status :deep(.ant-btn-primary) {
+  background: rgba(75, 70, 150, 0.6);
+  border-color: rgba(151, 149, 240, 0.8);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+.user-login-status :deep(.ant-btn-primary:hover) {
+  background: rgba(120, 80, 120, 0.7);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 </style>
