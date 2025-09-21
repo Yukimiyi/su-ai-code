@@ -10,6 +10,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.yukina.suaicode.constant.AppConstant;
 import com.yukina.suaicode.core.AiCodeGeneratorFacade;
+import com.yukina.suaicode.core.handler.StreamHandlerExecutor;
 import com.yukina.suaicode.exception.BusinessException;
 import com.yukina.suaicode.exception.ErrorCode;
 import com.yukina.suaicode.exception.ThrowUtils;
@@ -57,6 +58,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private StreamHandlerExecutor streamHandlerExecutor;
 
     @Override
     public AppVO getAppVO(App app) {
@@ -118,12 +122,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     }
 
     @Override
-    public Flux<String> chatToGenCode(Long appid, String message, User loginUser) {
+    public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
         // 1. 参数验证
-        ThrowUtils.throwIf(appid == null || appid <= 0, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(message == null || message.length() == 0, ErrorCode.PARAMS_ERROR);
         // 2. 查询应用
-        App app = this.getById(appid);
+        App app = this.getById(appId);
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
         // 3. 权限验证
         if (!app.getUserId().equals(loginUser.getId())) {
@@ -134,28 +138,11 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
         ThrowUtils.throwIf(codeGenTypeEnum == null, ErrorCode.PARAMS_ERROR, "不支持的代码生成类型");
         // 5. 通过校验后，保存对话历史
-        chatHistoryService.addChatHistory(message, ChatHistoryMessageTypeEnum.USER.getValue(), appid, loginUser.getId());
+        chatHistoryService.addChatHistory(message, ChatHistoryMessageTypeEnum.USER.getValue(), appId, loginUser.getId());
         // 6. 调用 AI 生成代码(流式)
-        Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(codeGenTypeEnum, message, appid);
+        Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(codeGenTypeEnum, message, appId);
         // 7. 收集 AI 响应结果并保存到对话历史
-        StringBuilder codeBuilder = new StringBuilder();
-        return contentFlux.map(chunk -> {
-                    // 收集 AI 响应内容
-                    codeBuilder.append(chunk);
-                    return chunk;
-                })
-                .doOnComplete(() -> {
-                    // 流失响应完成，将AI消息保留到对话
-                    String aiResponse = codeBuilder.toString();
-                    if (StrUtil.isNotBlank(aiResponse)) {
-                        chatHistoryService.addChatHistory(aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), appid, loginUser.getId());
-                    }
-                })
-                .doOnError(error -> {
-                    // 失败时，也将消息保留到历史对话
-                    String errorMessage = "AI回复失败" + error.getMessage();
-                    chatHistoryService.addChatHistory(errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), appid, loginUser.getId());
-                });
+        return streamHandlerExecutor.doExecute(contentFlux, chatHistoryService, appId, loginUser, codeGenTypeEnum);
     }
 
     @Override
