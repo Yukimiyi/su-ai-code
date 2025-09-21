@@ -1,5 +1,6 @@
 package com.yukina.suaicode.service.impl;
 
+
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -15,11 +16,16 @@ import com.yukina.suaicode.model.entity.User;
 import com.yukina.suaicode.model.enums.ChatHistoryMessageTypeEnum;
 import com.yukina.suaicode.service.AppService;
 import com.yukina.suaicode.service.ChatHistoryService;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 对话历史 服务层实现。
@@ -27,7 +33,8 @@ import java.time.LocalDateTime;
  * @author <a href="https://github.com/Yukimiyi">yukina</a>
  */
 @Service
-public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory>  implements ChatHistoryService{
+@Slf4j
+public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
     @Resource
     @Lazy
@@ -117,5 +124,38 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
         QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
         // 查询数据
         return this.page(Page.of(1, pageSize), queryWrapper);
+    }
+    
+    @Override
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            ThrowUtils.throwIf(appId == null, ErrorCode.PARAMS_ERROR, "应用ID不能为空");
+            ThrowUtils.throwIf(chatMemory == null, ErrorCode.PARAMS_ERROR, "聊天内存不能为空");
+            ThrowUtils.throwIf(maxCount <= 0, ErrorCode.PARAMS_ERROR, "最大加载数量必须大于0");
+            QueryWrapper queryWrapper = QueryWrapper.create()
+                    .eq(ChatHistory::getAppId, appId)
+                    .orderBy(ChatHistory::getCreateTime, false)
+                    .limit(1, maxCount);
+            List<ChatHistory> chatHistoryList = this.list(queryWrapper);
+            chatHistoryList.reversed();
+            int loadCount = 0;
+            chatMemory.clear();
+            for (ChatHistory chatHistory : chatHistoryList) {
+                ChatHistoryMessageTypeEnum chatHistoryMessageType = ChatHistoryMessageTypeEnum.getEnumByValue(chatHistory.getMessageType());
+                if (chatHistoryMessageType == ChatHistoryMessageTypeEnum.USER) {
+                    chatMemory.add(UserMessage.from(chatHistory.getMessage()));
+                    loadCount++;
+                } else if(chatHistoryMessageType == ChatHistoryMessageTypeEnum.AI) {
+                    chatMemory.add(AiMessage.from(chatHistory.getMessage()));
+                    loadCount++;
+                }
+            }
+            log.info("成功为 appId：{} 加载了 {} 条历史对话", appId, loadCount);
+            return loadCount;
+        } catch (Exception e) {
+            log.error("加载对话历史失败，appId：{}，error：{}", appId, e.getMessage(), e);
+            // 加载失败不影响系统运行，只是没有上下文
+            return 0;
+        }
     }
 }

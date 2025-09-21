@@ -9,11 +9,28 @@ spring:
     url: jdbc:mysql://localhost:3306/su-ai-code
     username: root
     password: 1234
+  # redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      ttl: 3600
+  # sesion
+  session:
+    store-type: redis
+    # 30天过期
+    timeout: 259200
+
 
 server:
   port: 8123
   servlet:
     context-path: /api
+    # cookie 30天过期
+    session:
+      cookie:
+        max-age: 259200
 springdoc:
   group-configs:
     - group: 'default'

@@ -282,10 +282,10 @@ onMounted(() => {
   padding: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 8%, #e2e8f0 20%, #cbd5e1 100%),
-    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+    linear-gradient(to top, #9795f0 0%, #fbc8d4 100%),
+    radial-gradient(circle at 20% 80%, rgba(151, 149, 240, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(251, 200, 212, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(151, 149, 240, 0.08) 0%, transparent 50%);
   position: relative;
   overflow: hidden;
 }
@@ -299,10 +299,10 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(151, 149, 240, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(151, 149, 240, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(251, 200, 212, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251, 200, 212, 0.04) 1px, transparent 1px);
   background-size:
     100px 100px,
     100px 100px,
@@ -323,12 +323,12 @@ onMounted(() => {
   background:
     radial-gradient(
       600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(59, 130, 246, 0.08) 0%,
-      rgba(139, 92, 246, 0.06) 40%,
+      rgba(151, 149, 240, 0.08) 0%,
+      rgba(251, 200, 212, 0.06) 40%,
       transparent 80%
     ),
-    linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.04) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, rgba(139, 92, 246, 0.04) 50%, transparent 70%);
+    linear-gradient(45deg, transparent 30%, rgba(151, 149, 240, 0.04) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgba(251, 200, 212, 0.04) 50%, transparent 70%);
   pointer-events: none;
   animation: lightPulse 8s ease-in-out infinite alternate;
 }
@@ -369,7 +369,7 @@ onMounted(() => {
   text-align: center;
   padding: 80px 0 60px;
   margin-bottom: 28px;
-  color: #1e293b;
+  color: #ffffff;
   position: relative;
   overflow: hidden;
 }
@@ -382,9 +382,9 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(ellipse 800px 400px at center, rgba(59, 130, 246, 0.12) 0%, transparent 70%),
-    linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.05) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, rgba(16, 185, 129, 0.04) 50%, transparent 70%);
+    radial-gradient(ellipse 800px 400px at center, rgba(151, 149, 240, 0.12) 0%, transparent 70%),
+    linear-gradient(45deg, transparent 30%, rgba(251, 200, 212, 0.05) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgba(151, 149, 240, 0.04) 50%, transparent 70%);
   animation: heroGlow 10s ease-in-out infinite alternate;
 }
 
@@ -413,31 +413,35 @@ onMounted(() => {
   font-weight: 700;
   margin: 0 0 20px;
   line-height: 1.2;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
+  text-shadow:
+    0 4px 20px rgba(151, 149, 240, 0.3),
+    0 2px 10px rgba(251, 200, 212, 0.2);
   letter-spacing: -1px;
   position: relative;
   z-index: 2;
-  animation: titleShimmer 3s ease-in-out infinite;
+  animation: titleGlow 4s ease-in-out infinite alternate;
 }
 
-@keyframes titleShimmer {
-  0%,
-  100% {
-    background-position: 0% 50%;
+@keyframes titleGlow {
+  0% {
+    text-shadow:
+      0 4px 20px rgba(151, 149, 240, 0.3),
+      0 2px 10px rgba(251, 200, 212, 0.2);
   }
-  50% {
-    background-position: 100% 50%;
+  100% {
+    text-shadow:
+      0 6px 30px rgba(151, 149, 240, 0.5),
+      0 4px 20px rgba(251, 200, 212, 0.4);
   }
 }
 
 .hero-description {
   font-size: 20px;
   margin: 0;
-  opacity: 0.8;
-  color: #64748b;
+  opacity: 0.9;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(151, 149, 240, 0.2);
   position: relative;
   z-index: 2;
 }
@@ -451,18 +455,24 @@ onMounted(() => {
 
 .prompt-input {
   border-radius: 16px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   font-size: 16px;
   padding: 20px 60px 20px 20px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(151, 149, 240, 0.1);
+  color: #ffffff;
 }
 
 .prompt-input:focus {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 40px rgba(151, 149, 240, 0.2);
   transform: translateY(-2px);
+  border-color: rgba(151, 149, 240, 0.5);
+}
+
+.prompt-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .input-actions {
@@ -472,6 +482,20 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.input-actions :deep(.ant-btn-primary) {
+  background: rgba(151, 149, 240, 0.3);
+  border-color: rgba(151, 149, 240, 0.5);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+.input-actions :deep(.ant-btn-primary:hover) {
+  background: rgba(151, 149, 240, 0.5);
+  border-color: rgba(151, 149, 240, 0.7);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(151, 149, 240, 0.3);
 }
 
 /* 快捷按钮 */
@@ -487,9 +511,9 @@ onMounted(() => {
   border-radius: 25px;
   padding: 8px 20px;
   height: auto;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  color: #475569;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
   backdrop-filter: blur(15px);
   transition: all 0.3s;
   position: relative;
@@ -503,7 +527,7 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(151, 149, 240, 0.2), transparent);
   transition: left 0.5s;
 }
 
@@ -512,11 +536,11 @@ onMounted(() => {
 }
 
 .quick-actions .ant-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #3b82f6;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(151, 149, 240, 0.5);
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 25px rgba(151, 149, 240, 0.2);
 }
 
 /* 区域标题 */
@@ -528,7 +552,8 @@ onMounted(() => {
   font-size: 32px;
   font-weight: 600;
   margin-bottom: 32px;
-  color: #1e293b;
+  color: #ffffff;
+  text-shadow: 0 2px 15px rgba(151, 149, 240, 0.3);
 }
 
 /* 我的作品网格 */
@@ -552,6 +577,43 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   margin-top: 32px;
+}
+
+.pagination-wrapper :deep(.ant-pagination) {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pagination-wrapper :deep(.ant-pagination-item) {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.pagination-wrapper :deep(.ant-pagination-item:hover) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(151, 149, 240, 0.5);
+}
+
+.pagination-wrapper :deep(.ant-pagination-item-active) {
+  background: rgba(151, 149, 240, 0.3);
+  border-color: rgba(151, 149, 240, 0.6);
+}
+
+.pagination-wrapper :deep(.ant-pagination-prev),
+.pagination-wrapper :deep(.ant-pagination-next) {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.pagination-wrapper :deep(.ant-pagination-prev:hover),
+.pagination-wrapper :deep(.ant-pagination-next:hover) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(151, 149, 240, 0.5);
 }
 
 /* 响应式设计 */

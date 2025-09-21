@@ -1,6 +1,7 @@
 package com.yukina.suaicode.core;
 
 import com.yukina.suaicode.ai.AiCodeGeneratorService;
+import com.yukina.suaicode.ai.AiCodeGeneratorServiceFactory;
 import com.yukina.suaicode.ai.model.HtmlCodeResult;
 import com.yukina.suaicode.ai.model.MultiFileCodeResult;
 import com.yukina.suaicode.core.parser.CodeParserExecutor;
@@ -22,8 +23,10 @@ import java.io.File;
 @Slf4j
 public class AiCodeGeneratorFacade {
 
+
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+
 
     /**
      * 生成代码并保存
@@ -35,6 +38,7 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
@@ -59,6 +63,7 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 Flux<String> stringFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
@@ -73,53 +78,55 @@ public class AiCodeGeneratorFacade {
         };
     }
 
-    /**
-     * 生成 HTML 代码并保存
-     *
-     * @param userMessage
-     * @return
-     */
-    private File generateAndSaveHtmlCode(String userMessage) {
-        // 生成 HTML 代码
-        HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
-        // 保存 HTML 代码
-        return CoreFileSaver.saveHtmlFile(htmlCodeResult);
-    }
+//    /**
+//     * 生成 HTML 代码并保存
+//     *
+//     * @param userMessage
+//     * @return
+//     */
+//    private File generateAndSaveHtmlCode(String userMessage) {
+//        // 生成 HTML 代码
+//        HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
+//        // 保存 HTML 代码
+//        return CoreFileSaver.saveHtmlFile(htmlCodeResult);
+//    }
 
-    /**
-     * 获取多文件代码并保存
-     *
-     * @param userMessage
-     * @return
-     */
-    private File generateAndSaveMultiFileCode(String userMessage) {
-        // 获取多文件代码生成结果
-        MultiFileCodeResult multiFileCodeResult = aiCodeGeneratorService.generateMultiFileCode(userMessage);
-        // 保存多文件代码
-        return CoreFileSaver.saveMultiFile(multiFileCodeResult);
-    }
+//    /**
+//     * 获取多文件代码并保存
+//     *
+//     * @param userMessage
+//     * @return
+//     */
+//    private File generateAndSaveMultiFileCode(String userMessage) {
+//        // 获取多文件代码生成结果
+//        MultiFileCodeResult multiFileCodeResult = aiCodeGeneratorService.generateMultiFileCode(userMessage);
+//        // 保存多文件代码
+//        return CoreFileSaver.saveMultiFile(multiFileCodeResult);
+//    }
 
-    /**
-     * 获取 HTML 代码并保存（流式）
-     *
-     * @param userMessage
-     * @return
-     */
-    private Flux<String> generateAndSaveHtmlCodeStream(String userMessage, Long appId) {
-        Flux<String> stringFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
-        return processCodeStream(stringFlux, CodeGenTypeEnum.HTML, appId);
-    }
-
-    /**
-     * 获取多文件代码并保存（流式）
-     *
-     * @param userMessage
-     * @return
-     */
-    private Flux<String> generateAndSaveMultiFileCodeStream(String userMessage, Long appId) {
-        Flux<String> stringFlux = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
-        return processCodeStream(stringFlux, CodeGenTypeEnum.MULTI_FILE, appId);
-    }
+//    /**
+//     * 获取 HTML 代码并保存（流式）
+//     *
+//     * @param userMessage
+//     * @return
+//     */
+//    private Flux<String> generateAndSaveHtmlCodeStream(String userMessage, Long appId) {
+//        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+//        Flux<String> stringFlux = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
+//        return processCodeStream(stringFlux, CodeGenTypeEnum.HTML, appId);
+//    }
+//
+//    /**
+//     * 获取多文件代码并保存（流式）
+//     *
+//     * @param userMessage
+//     * @return
+//     */
+//    private Flux<String> generateAndSaveMultiFileCodeStream(String userMessage, Long appId) {
+//        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+//        Flux<String> stringFlux = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
+//        return processCodeStream(stringFlux, CodeGenTypeEnum.MULTI_FILE, appId);
+//    }
 
     private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenType, Long appId) {
         StringBuilder codeBuilder = new StringBuilder();
