@@ -1,6 +1,6 @@
 spring:
   application:
-      name: su-ai-code
+    name: su-ai-code
   profiles:
     active: local
   # mysql
@@ -51,6 +51,9 @@ langchain4j:
       log-requests: true
       log-responses: true
       maxtokens: 8192
+# 注释 JSON 结构化返回约束，兼容枚举值返回
+#      strict-json-schema: true
+#      response-format: json_object
     streaming-chat-model:
       base-url: https://api.deepseek.com
       api-key: <Your API Key>
@@ -58,3 +61,13 @@ langchain4j:
       max-tokens: 8192
       log-requests: true
       log-responses: true
+
+# COS 对象存储配置
+cos:
+  client:
+    host: your-custom-domain.com
+    secretId: your-secret-id
+    secretKey: your-secret-key
+    region: ap-shanghai
+    bucket: your-bucket-name
+

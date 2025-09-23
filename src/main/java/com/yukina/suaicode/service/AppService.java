@@ -2,6 +2,7 @@ package com.yukina.suaicode.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.yukina.suaicode.model.dto.app.AppAddRequest;
 import com.yukina.suaicode.model.dto.app.AppQueryRequest;
 import com.yukina.suaicode.model.entity.App;
 import com.yukina.suaicode.model.entity.User;
@@ -28,4 +29,7 @@ public interface AppService extends IService<App> {
     String deployApp(Long appid, User loginUser);
 
 
+    void generateAndUploadScreenshotAsync(Long appId, String appDeployUrl);
+
+    Long addApp(AppAddRequest appAddRequest, User loginUser);
 }

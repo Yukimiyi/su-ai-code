@@ -8,6 +8,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.yukina.suaicode.ai.AiCodeGenTypeRoutingService;
 import com.yukina.suaicode.constant.AppConstant;
 import com.yukina.suaicode.core.AiCodeGeneratorFacade;
 import com.yukina.suaicode.core.builder.VueProjectBuilder;
@@ -16,6 +17,7 @@ import com.yukina.suaicode.exception.BusinessException;
 import com.yukina.suaicode.exception.ErrorCode;
 import com.yukina.suaicode.exception.ThrowUtils;
 import com.yukina.suaicode.mapper.AppMapper;
+import com.yukina.suaicode.model.dto.app.AppAddRequest;
 import com.yukina.suaicode.model.dto.app.AppQueryRequest;
 import com.yukina.suaicode.model.entity.App;
 import com.yukina.suaicode.model.entity.User;
@@ -25,6 +27,7 @@ import com.yukina.suaicode.model.vo.AppVO;
 import com.yukina.suaicode.model.vo.UserVO;
 import com.yukina.suaicode.service.AppService;
 import com.yukina.suaicode.service.ChatHistoryService;
+import com.yukina.suaicode.service.ScreenShotService;
 import com.yukina.suaicode.service.UserService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +68,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     
     @Resource
     private VueProjectBuilder vueProjectBuilder;
+    
+    @Resource
+    private ScreenShotService screenShotService;
+
+    @Resource
+    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
 
     @Override
     public AppVO getAppVO(App app) {
@@ -199,8 +208,32 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         updateApp.setDeployedTime(LocalDateTime.now());
         boolean update = this.updateById(updateApp);
         ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "更新部署时间失败");
-        // 10. 返回可访问的 URL
-        return String.format("%s/%s/", CODE_DEPLOY_HOST, deployKey);
+        // 10. 构建应用访问URL
+        String appDeployUrl = String.format("%s/%s/", CODE_DEPLOY_HOST, deployKey);
+        // 11. 异步生成截图并更新应用封面
+        generateAndUploadScreenshotAsync(appid, appDeployUrl);
+        return appDeployUrl;
+    }
+
+    /**
+     * 异步生成截图并更新应用封面
+     *
+     * @param appId
+     * @param appDeployUrl
+     */
+    @Override
+    public void generateAndUploadScreenshotAsync(Long appId, String appDeployUrl) {
+        // 使用虚拟线程执行异步任务
+        Thread.startVirtualThread(() -> {
+            // 调用截图服务并上传
+            String screenshotUrl = screenShotService.generateAndUploadScreenshot(appDeployUrl);
+            // 更新应用封面
+            App updateApp = new App();
+            updateApp.setId(appId);
+            updateApp.setCover(screenshotUrl);
+            boolean update = this.updateById(updateApp);
+            ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "更新应用封面字段失败");
+        });
     }
 
     @Override
@@ -225,6 +258,28 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             log.error("清理应用文件失败: {}", e.getMessage());
         }
         return super.removeById(appId);
+    }
+
+
+    @Override
+    public Long addApp(AppAddRequest appAddRequest, User loginUser) {
+        // 参数校验
+        String initPrompt = appAddRequest.getInitPrompt();
+        ThrowUtils.throwIf(StrUtil.isBlank(initPrompt), ErrorCode.PARAMS_ERROR, "初始化 prompt 不能为空");
+        // 获取当前登录用户
+        // 构造入库对象
+        App app = new App();
+        BeanUtil.copyProperties(appAddRequest, app);
+        app.setUserId(loginUser.getId());
+        // 应用名称暂时为 initPrompt 前 12 位
+        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        // 使用 AI 智能选择代码生成类型
+        CodeGenTypeEnum codeGenTypeEnum = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
+        app.setCodeGenType(codeGenTypeEnum.getValue());
+        // 插入数据库
+        boolean result = this.save(app);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return app.getId();
     }
 
     private static void deleteOutPutAndDeployFiles(App app) {
