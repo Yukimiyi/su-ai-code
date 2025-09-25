@@ -137,7 +137,7 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
                     .orderBy(ChatHistory::getCreateTime, false)
                     .limit(1, maxCount);
             List<ChatHistory> chatHistoryList = this.list(queryWrapper);
-            chatHistoryList.reversed();
+            chatHistoryList = chatHistoryList.reversed();
             int loadCount = 0;
             chatMemory.clear();
             for (ChatHistory chatHistory : chatHistoryList) {
