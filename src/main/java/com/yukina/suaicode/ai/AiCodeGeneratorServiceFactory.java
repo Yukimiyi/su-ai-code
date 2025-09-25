@@ -2,7 +2,7 @@ package com.yukina.suaicode.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.yukina.suaicode.ai.tools.FileWriteTool;
+import com.yukina.suaicode.ai.tools.*;
 import com.yukina.suaicode.model.enums.CodeGenTypeEnum;
 import com.yukina.suaicode.service.ChatHistoryService;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
@@ -36,6 +36,9 @@ public class AiCodeGeneratorServiceFactory {
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private ToolManager toolManager;
 
     /**
      * AI 服务实例缓存
@@ -95,7 +98,7 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)
                     .streamingChatModel(reasoningStreamChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(new FileWriteTool())
+                    .tools(toolManager.getAllTools())
                     .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                             toolExecutionRequest, "Error: there is no tool called "
                                     + toolExecutionRequest.name()))
@@ -116,6 +119,7 @@ public class AiCodeGeneratorServiceFactory {
 
     /**
      * 构建缓存键
+     *
      * @param appId
      * @param codeGenTypeEnum
      * @return

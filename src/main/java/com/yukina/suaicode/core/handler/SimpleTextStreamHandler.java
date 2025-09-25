@@ -6,6 +6,10 @@ import com.yukina.suaicode.model.enums.ChatHistoryMessageTypeEnum;
 import com.yukina.suaicode.service.ChatHistoryService;
 import reactor.core.publisher.Flux;
 
+/**
+ * 简单文本流处理器
+ * 处理 HTML、MULTI_FILE 类型的流式响应
+ */
 public class SimpleTextStreamHandler {
     public Flux<String> handle(Flux<String> originFlux, ChatHistoryService chatHistoryService, long appId, User loginUser) {
         StringBuilder codeBuilder = new StringBuilder();
