@@ -61,3 +61,8 @@
 127.0.0.1 - - [24/Sep/2025:11:51:08 +0800] "POST / HTTP/1.1" 403 153 "-" "-"
 127.0.0.1 - - [24/Sep/2025:11:51:08 +0800] "POST / HTTP/1.1" 403 153 "-" "-"
 127.0.0.1 - - [24/Sep/2025:11:51:08 +0800] "POST / HTTP/1.1" 403 153 "-" "-"
+127.0.0.1 - - [25/Sep/2025:09:09:20 +0800] "GET /016666 HTTP/1.1" 301 169 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [25/Sep/2025:09:09:20 +0800] "GET /016666/ HTTP/1.1" 200 373 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [25/Sep/2025:09:09:21 +0800] "GET /016666/assets/index-d13c4cb6.js HTTP/1.1" 200 89472 "http://localhost/016666/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [25/Sep/2025:09:09:21 +0800] "GET /016666/assets/index-a546cb5e.css HTTP/1.1" 200 3719 "http://localhost/016666/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [25/Sep/2025:09:09:22 +0800] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost/016666/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
