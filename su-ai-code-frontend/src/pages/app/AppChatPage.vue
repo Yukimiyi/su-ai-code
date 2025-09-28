@@ -553,6 +553,30 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
         handleError(new Error('SSE连接错误'), aiMessageIndex)
       }
     }
+
+    // 处理business-error事件（后端限流等错误）
+    eventSource.addEventListener('business-error', function (event: MessageEvent) {
+      if (streamCompleted) return
+
+      try {
+        const errorData = JSON.parse(event.data)
+        console.error('SSE业务错误事件:', errorData)
+
+        // 显示具体的错误信息
+        const errorMessage = errorData.message || '生成过程中出现错误'
+        messages.value[aiMessageIndex].content = `❌ ${errorMessage}`
+        messages.value[aiMessageIndex].loading = false
+        message.error(errorMessage)
+
+        streamCompleted = true
+        isGenerating.value = false
+        eventSource?.close()
+      } catch (parseError) {
+        console.error('解析错误事件失败:', parseError, '原始数据:', event.data)
+        handleError(new Error('服务器返回错误'), aiMessageIndex)
+      }
+    })
+
   } catch (error) {
     console.error('创建 EventSource 失败：', error)
     handleError(error, aiMessageIndex)
@@ -729,6 +753,7 @@ const getInputPlaceholder = () => {
   }
   return '请描述你想生成的网站，越详细效果越好哦'
 }
+
 
 // 页面加载时获取应用信息
 onMounted(() => {

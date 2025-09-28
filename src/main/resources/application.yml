@@ -16,6 +16,7 @@ spring:
       port: 6379
       password:
       ttl: 3600
+      database: 0
   # sesion
   session:
     store-type: redis
@@ -51,6 +52,7 @@ langchain4j:
       log-requests: true
       log-responses: true
       maxtokens: 8192
+      max-retries: 3
     # 注释 JSON 结构化返回约束，兼容枚举值返回
     #      strict-json-schema: true
     #      response-format: json_object
@@ -61,6 +63,27 @@ langchain4j:
       max-tokens: 8192
       log-requests: true
       log-responses: true
+      max-retries: 3
+    # 推理 AI 模型配置（用于复杂的推理任务）
+    reasoning-streaming-chat-model:
+      base-url: https://api.deepseek.com
+      api-key: <Your API Key>
+      model-name: deepseek-reasoner
+      max-tokens: 32768
+      temperature: 0.1
+      log-requests: true
+      log-responses: true
+      max-retries: 3
+    # 智能路由 AI 模型配置（用于简单的分类任务）
+    routing-chat-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: <Your API Key>
+      model-name: qwen-flash
+      max-tokens: 100
+      log-requests: true
+      log-responses: true
+
+
 
 # COS 对象存储配置
 cos:
