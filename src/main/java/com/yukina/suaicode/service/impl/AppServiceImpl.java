@@ -26,6 +26,8 @@ import com.yukina.suaicode.model.enums.ChatHistoryMessageTypeEnum;
 import com.yukina.suaicode.model.enums.CodeGenTypeEnum;
 import com.yukina.suaicode.model.vo.AppVO;
 import com.yukina.suaicode.model.vo.UserVO;
+import com.yukina.suaicode.monitor.MonitorContext;
+import com.yukina.suaicode.monitor.MonitorContextHolder;
 import com.yukina.suaicode.service.AppService;
 import com.yukina.suaicode.service.ChatHistoryService;
 import com.yukina.suaicode.service.ScreenShotService;
@@ -71,10 +73,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private StreamHandlerExecutor streamHandlerExecutor;
-    
+
     @Resource
     private VueProjectBuilder vueProjectBuilder;
-    
+
     @Resource
     private ScreenShotService screenShotService;
 
@@ -158,10 +160,20 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         ThrowUtils.throwIf(codeGenTypeEnum == null, ErrorCode.PARAMS_ERROR, "不支持的代码生成类型");
         // 5. 通过校验后，保存对话历史
         chatHistoryService.addChatHistory(message, ChatHistoryMessageTypeEnum.USER.getValue(), appId, loginUser.getId());
-        // 6. 调用 AI 生成代码(流式)
+        // 6. 设置监控上下文
+        MonitorContextHolder.setContext(MonitorContext.builder()
+                .userId(loginUser.getId().toString())
+                .appId(appId.toString())
+                .build()
+        );
+        // 7. 调用 AI 生成代码(流式)
         Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(codeGenTypeEnum, message, appId);
-        // 7. 收集 AI 响应结果并保存到对话历史
-        return streamHandlerExecutor.doExecute(contentFlux, chatHistoryService, appId, loginUser, codeGenTypeEnum);
+        // 8. 收集 AI 响应结果并保存到对话历史
+        return streamHandlerExecutor.doExecute(contentFlux, chatHistoryService, appId, loginUser, codeGenTypeEnum)
+                .doFinally(signalType -> {
+                    // 流结束时清理（无论成功/失败/取消）
+                    MonitorContextHolder.clearContext();
+                });
     }
 
     @Override
@@ -294,7 +306,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String outPutDir = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + app.getCodeGenType() + "_" + app.getId();
         FileUtil.del(outPutDir);
         String deployKey = app.getDeployKey();
-        if(StrUtil.isNotBlank(deployKey)) {
+        if (StrUtil.isNotBlank(deployKey)) {
             String deployDir = AppConstant.CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
             FileUtil.del(deployDir);
         }
