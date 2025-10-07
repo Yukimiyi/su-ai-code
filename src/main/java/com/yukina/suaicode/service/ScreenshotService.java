@@ -1,5 +1,5 @@
 package com.yukina.suaicode.service;
 
-public interface ScreenShotService {
+public interface ScreenshotService {
     String generateAndUploadScreenshot(String webUrl);
 }

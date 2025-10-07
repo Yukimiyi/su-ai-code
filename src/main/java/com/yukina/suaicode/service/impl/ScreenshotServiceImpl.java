@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yukina.suaicode.exception.ErrorCode;
 import com.yukina.suaicode.exception.ThrowUtils;
 import com.yukina.suaicode.manager.CosManager;
-import com.yukina.suaicode.service.ScreenShotService;
+import com.yukina.suaicode.service.ScreenshotService;
 import com.yukina.suaicode.utils.WebScreenshotUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class ScreenShotServiceImpl implements ScreenShotService {
+public class ScreenshotServiceImpl implements ScreenshotService {
 
     @Resource
     private CosManager cosManager;

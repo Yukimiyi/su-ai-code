@@ -30,7 +30,7 @@ import com.yukina.suaicode.monitor.MonitorContext;
 import com.yukina.suaicode.monitor.MonitorContextHolder;
 import com.yukina.suaicode.service.AppService;
 import com.yukina.suaicode.service.ChatHistoryService;
-import com.yukina.suaicode.service.ScreenShotService;
+import com.yukina.suaicode.service.ScreenshotService;
 import com.yukina.suaicode.service.UserService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +78,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private VueProjectBuilder vueProjectBuilder;
 
     @Resource
-    private ScreenShotService screenShotService;
+    private ScreenshotService screenShotService;
 
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
