@@ -8,6 +8,8 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.yukina.suaicode.ai.AiCodeAppNameGeneratorService;
+import com.yukina.suaicode.ai.AiCodeAppNameGeneratorServiceFactory;
 import com.yukina.suaicode.ai.AiCodeGenTypeRoutingService;
 import com.yukina.suaicode.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.yukina.suaicode.constant.AppConstant;
@@ -82,6 +84,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
+
+    @Resource
+    private AiCodeAppNameGeneratorServiceFactory aiCodeAppNameGeneratorServiceFactory;
 
     @Override
     public AppVO getAppVO(App app) {
@@ -290,8 +295,11 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         App app = new App();
         BeanUtil.copyProperties(appAddRequest, app);
         app.setUserId(loginUser.getId());
-        // 应用名称暂时为 initPrompt 前 12 位
-        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        // 通过ai生成应用名称
+        AiCodeAppNameGeneratorService aiCodeAppNameGeneratorService = aiCodeAppNameGeneratorServiceFactory.createAiCodeAppNameGeneratorService();
+        String appName = aiCodeAppNameGeneratorService.generateAppName(app.getInitPrompt());
+//        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        app.setAppName(appName);
         // 使用 AI 智能选择代码生成类型
         AiCodeGenTypeRoutingService routingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
         CodeGenTypeEnum codeGenTypeEnum = routingService.routeCodeGenType(initPrompt);

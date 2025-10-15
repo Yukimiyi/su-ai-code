@@ -576,7 +576,6 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
         handleError(new Error('服务器返回错误'), aiMessageIndex)
       }
     })
-
   } catch (error) {
     console.error('创建 EventSource 失败：', error)
     handleError(error, aiMessageIndex)
@@ -753,7 +752,6 @@ const getInputPlaceholder = () => {
   }
   return '请描述你想生成的网站，越详细效果越好哦'
 }
-
 
 // 页面加载时获取应用信息
 onMounted(() => {

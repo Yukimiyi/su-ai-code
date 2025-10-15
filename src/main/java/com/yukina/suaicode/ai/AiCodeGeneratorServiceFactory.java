@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 
+/**
+ * 代码生成服务工厂
+ */
 @Configuration
 @Slf4j
 public class AiCodeGeneratorServiceFactory {
@@ -86,7 +89,7 @@ public class AiCodeGeneratorServiceFactory {
                 .builder()
                 .id(appId)
                 .chatMemoryStore(redisChatMemoryStore)
-                .maxMessages(50)
+                .maxMessages(100)
                 .build();
         // 从数据库加载历史对话到记忆中，历史对话的过期时间比AI服务实例本地缓存过期时间长，故不会出现前者在服务实例存在便过期的情况
         chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);

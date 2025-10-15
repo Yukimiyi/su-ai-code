@@ -30,6 +30,10 @@
               </a-space>
               <template #overlay>
                 <a-menu>
+                  <a-menu-item @click="goUserSetting">
+                    <SettingOutlined />
+                    个人设置
+                  </a-menu-item>
                   <a-menu-item @click="doLogout">
                     <LogoutOutlined />
                     退出登录
@@ -53,8 +57,7 @@ import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { userLogout } from '@/api/userController.ts'
-import { LogoutOutlined, HomeOutlined } from '@ant-design/icons-vue'
-import ChatManagePage from '@/pages/admin/ChatManagePage.vue'
+import { LogoutOutlined, HomeOutlined, SettingOutlined } from '@ant-design/icons-vue'
 
 const loginUserStore = useLoginUserStore()
 const router = useRouter()
@@ -93,7 +96,6 @@ const originItems = [
     label: h('a', { href: 'https://github.com/Yukimiyi/su-ai-code', target: '_blank' }, '项目仓库'),
     title: '项目仓库',
   },
-
 ]
 
 // 过滤菜单项
@@ -135,6 +137,11 @@ const doLogout = async () => {
   } else {
     message.error('退出登录失败，' + res.data.message)
   }
+}
+
+// 前往个人设置
+const goUserSetting = () => {
+  router.push('/user/setting')
 }
 </script>
 

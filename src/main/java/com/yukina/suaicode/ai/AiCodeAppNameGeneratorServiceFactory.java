@@ -8,21 +8,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * AI代码生成类型路由服务工厂
+ * 应用名称生成服务工厂
  *
  * @author yukina
  */
 @Slf4j
 @Configuration
-public class AiCodeGenTypeRoutingServiceFactory {
+public class AiCodeAppNameGeneratorServiceFactory {
 
 
     /**
      * 创建AI代码生成类型路由服务实例
      */
-    public AiCodeGenTypeRoutingService createAiCodeGenTypeRoutingService() {
-        ChatModel chatModel = SpringContextUtil.getBean("routingChatModelPrototype", ChatModel.class);
-        return AiServices.builder(AiCodeGenTypeRoutingService.class)
+    public AiCodeAppNameGeneratorService createAiCodeAppNameGeneratorService() {
+        ChatModel chatModel = SpringContextUtil.getBean("appNameChatModelPrototype", ChatModel.class);
+        return AiServices.builder(AiCodeAppNameGeneratorService.class)
                 .chatModel(chatModel)
                 .build();
     }
@@ -32,7 +32,7 @@ public class AiCodeGenTypeRoutingServiceFactory {
      * @return
      */
     @Bean
-    public AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService() {
-        return createAiCodeGenTypeRoutingService();
+    public AiCodeAppNameGeneratorService aiCodeAppNameGeneratorService() {
+        return createAiCodeAppNameGeneratorService();
     }
 }

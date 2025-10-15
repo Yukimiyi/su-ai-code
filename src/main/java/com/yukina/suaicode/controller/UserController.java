@@ -159,6 +159,21 @@ public class UserController {
     }
 
     /**
+     * 编辑用户
+     */
+    @PostMapping("/edit")
+    public BaseResponse<Boolean> editUser(@RequestBody UserEditRequest userEditRequest) {
+        if (userEditRequest == null || userEditRequest.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        BeanUtil.copyProperties(userEditRequest, user);
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
      * 分页获取用户封装列表（仅管理员）
      *
      * @param userQueryRequest 查询请求参数

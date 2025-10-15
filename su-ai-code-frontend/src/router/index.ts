@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
 import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
+// @ts-expect-error: vite ts resolver sometimes misses .vue type for views
+import UserSettingPage from '@/pages/user/UserSettingPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
 import AppManagePage from '@/pages/admin/AppManagePage.vue'
 import AppChatPage from '@/pages/app/AppChatPage.vue'
@@ -15,6 +17,11 @@ const router = createRouter({
       path: '/',
       name: '主页',
       component: HomePage,
+    },
+    {
+      path: '/user/setting',
+      name: '个人设置',
+      component: UserSettingPage,
     },
     {
       path: '/user/login',
@@ -51,7 +58,6 @@ const router = createRouter({
       name: '对话管理',
       component: ChatManagePage,
     },
-
   ],
 })
 

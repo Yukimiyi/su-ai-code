@@ -36,15 +36,43 @@
           {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button danger @click="doDelete(record.id)">删除</a-button>
+          <a-space>
+            <a-button type="primary" ghost @click="openEdit(record)">编辑</a-button>
+            <a-button danger @click="doDelete(record.id)">删除</a-button>
+          </a-space>
         </template>
       </template>
     </a-table>
+    <!-- 编辑用户弹窗 -->
+    <a-modal
+      v-model:open="editVisible"
+      title="编辑用户"
+      @ok="submitEdit"
+      :confirm-loading="editLoading"
+    >
+      <a-form :model="editForm" :label-col="{ span: 5 }" :wrapper-col="{ span: 19 }">
+        <a-form-item label="用户名">
+          <a-input v-model:value="editForm.userName" placeholder="请输入用户名" />
+        </a-form-item>
+        <a-form-item label="简介">
+          <a-input v-model:value="editForm.userProfile" placeholder="请输入简介" />
+        </a-form-item>
+        <a-form-item label="头像URL">
+          <a-input v-model:value="editForm.userAvatar" placeholder="请输入头像地址" />
+        </a-form-item>
+        <a-form-item label="角色">
+          <a-select v-model:value="editForm.userRole" placeholder="请选择角色">
+            <a-select-option value="user">普通用户</a-select-option>
+            <a-select-option value="admin">管理员</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { deleteUser, listUserVoByPage } from '@/api/userController.ts'
+import { deleteUser, listUserVoByPage, updateUser } from '@/api/userController.ts'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
@@ -132,7 +160,7 @@ const doSearch = () => {
 }
 
 // 删除数据
-const doDelete = async (id: string) => {
+const doDelete = async (id: number) => {
   if (!id) {
     return
   }
@@ -150,6 +178,43 @@ const doDelete = async (id: string) => {
 onMounted(() => {
   fetchData()
 })
+
+// 编辑相关
+const editVisible = ref(false)
+const editLoading = ref(false)
+const editForm = reactive<Partial<API.UserUpdateRequest>>({})
+
+const openEdit = (record: API.UserVO) => {
+  // 预填充表单
+  editForm.id = record.id as number
+  editForm.userName = record.userName
+  editForm.userProfile = record.userProfile
+  editForm.userAvatar = record.userAvatar
+  editForm.userRole = record.userRole
+  editVisible.value = true
+}
+
+const submitEdit = async () => {
+  if (!editForm.id) {
+    message.error('缺少用户ID')
+    return
+  }
+  try {
+    editLoading.value = true
+    const res = await updateUser(editForm as API.UserUpdateRequest)
+    if (res.data.code === 0) {
+      message.success('更新成功')
+      editVisible.value = false
+      fetchData()
+    } else {
+      message.error('更新失败：' + res.data.message)
+    }
+  } catch {
+    message.error('更新失败')
+  } finally {
+    editLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
