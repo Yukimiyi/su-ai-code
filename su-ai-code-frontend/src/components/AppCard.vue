@@ -58,15 +58,15 @@ const handleViewWork = () => {
 .app-card {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(151, 149, 240, 0.05) 50%,
-    rgba(251, 200, 212, 0.05) 100%
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.1) 100%
   );
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(151, 149, 240, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   transition:
     transform 0.3s,
     box-shadow 0.3s;
@@ -80,7 +80,7 @@ const handleViewWork = () => {
 
 .app-preview {
   height: 180px;
-  background: #f5f5f5;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,7 +96,8 @@ const handleViewWork = () => {
 
 .app-placeholder {
   font-size: 48px;
-  color: #d9d9d9;
+  color: rgba(151, 149, 240, 0.8);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .app-overlay {

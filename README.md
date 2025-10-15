@@ -59,9 +59,10 @@
 1) MySQL 本地服务
 2) Redis 本地服务
 3) Nginx 命令行启动
-4) Prometheus 命令行启动
-5) Grafana 命令行启动
-6) Nacos 命令行启动
+4) Prometheus 命令行启动  ./prometheus --config.file=<配置文件路径>
+5) Grafana 命令行启动 ./bin/grafana server
+6) Nacos 命令行启动 startup.cmd -m standalone（windows) sh startup.sh -m standalone(Linux/Mac)
+
 ##### 请确保上述依赖环境全部启动
 
 ### 用到的第三方库
